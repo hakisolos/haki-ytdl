@@ -96,36 +96,24 @@
 
       const videoApi = `https://api.giftedtech.my.id/api/download/ytmp4?apikey=gifted&url=${encodeURIComponent(url)}`;
       fetch(videoApi)
-        .then(response => response.json())
-        .then(data => {
-          if (data && data.result && data.result.download_url) {
-            window.open(data.result.download_url, '_blank');
-          } else {
-            alert('Failed to fetch the video download link. Try again later.');
-          }
-        })
-        .catch(() => alert('An error occurred while processing your request.'));
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
     }
-
-    function downloadAudio() {
-      const url = document.getElementById('urlInput').value;
-      if (!url) {
-        alert('Please enter a valid YouTube URL.');
-        return;
-      }
-
-      const audioApi = `https://api.giftedtech.my.id/api/download/ytmp3?apikey=gifted&url=${encodeURIComponent(url)}`;
-      fetch(audioApi)
-        .then(response => response.json())
-        .then(data => {
-          if (data && data.result && data.result.download_url) {
-            window.open(data.result.download_url, '_blank');
-          } else {
-            alert('Failed to fetch the audio download link. Try again later.');
-          }
-        })
-        .catch(() => alert('An error occurred while processing your request.'));
+    return response.json();
+  })
+  .then(data => {
+    console.log('API Response:', data); // Log the response for debugging
+    if (data && data.result && data.result.download_url) {
+      window.open(data.result.download_url, '_blank');
+    } else {
+      alert(data.message || 'Failed to fetch the download link.');
     }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('An error occurred while processing your request.');
+  });
   </script>
 </body>
 </html>
