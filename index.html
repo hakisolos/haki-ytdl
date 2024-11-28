@@ -1,152 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Downloader</title>
-    <style>
-        /* General Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Media Downloader</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: url('https://files.catbox.moe/gl68he.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+    }
 
-        /* Background Styling */
-        body {
-            height: 100vh;
-            background: url('https://files.catbox.moe/gl68he.jpg') no-repeat center center fixed;
-            background-size: cover;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Arial', sans-serif;
-            color: #fff;
-        }
+    .container {
+      text-align: center;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+      width: 90%;
+      max-width: 400px;
+    }
 
-        /* Centered Content Div */
-        #app {
-            background: rgba(0, 0, 0, 0.85);
-            border-radius: 15px;
-            padding: 40px 30px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
-            text-align: center;
-        }
+    input {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+    }
 
-        /* Heading */
-        h1 {
-            font-size: 28px;
-            margin-bottom: 20px;
-            color: #00ffcc;
-        }
+    button {
+      padding: 10px 15px;
+      margin: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #ff9900;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s;
+    }
 
-        /* Input Field */
-        input {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: none;
-            border-radius: 10px;
-            outline: none;
-            font-size: 16px;
-        }
+    button:hover {
+      background: #e68a00;
+    }
 
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.3s ease-in-out;
-        }
+    .footer {
+      margin-top: 20px;
+    }
 
-        .btn.video {
-            background-color: #007bff;
-            color: #fff;
-        }
+    .footer button {
+      background: transparent;
+      color: #ff9900;
+      border: 1px solid #ff9900;
+      padding: 8px 12px;
+      font-size: 14px;
+    }
 
-        .btn.audio {
-            background-color: #28a745;
-            color: #fff;
-        }
-
-        .btn:hover {
-            transform: scale(1.05);
-            opacity: 0.9;
-        }
-
-        /* Result Section */
-        .result {
-            margin-top: 20px;
-        }
-
-        a {
-            color: #00ffcc;
-            text-decoration: none;
-            font-size: 18px;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    .footer button:hover {
+      background: #ff9900;
+      color: white;
+    }
+  </style>
 </head>
 <body>
-    <div id="app">
-        <h1>YouTube Downloader</h1>
-        <input type="text" id="url" placeholder="Enter YouTube URL" required>
-        <button class="btn video" id="video-btn">Download Video</button>
-        <button class="btn audio" id="audio-btn">Download Audio</button>
-        <div class="result" id="result"></div>
+  <div class="container">
+    <h1>Media Downloader</h1>
+    <p>Enter the YouTube URL and choose an option:</p>
+    <input type="text" id="urlInput" placeholder="Paste YouTube URL here">
+    <div>
+      <button onclick="downloadVideo()">Download Video</button>
+      <button onclick="downloadAudio()">Download Audio</button>
     </div>
+    <div class="footer">
+      <button disabled>Made with ❤️ by Baki</button>
+      <button onclick="window.open('https://wa.me/2349112171078')">Contact Me</button>
+    </div>
+  </div>
 
-    <script>
-        const apiKey = "gifted";
-        const apiUrl = "https://api.giftedtech.my.id/api/download/ytdl";
+  <script>
+    function downloadVideo() {
+      const url = document.getElementById('urlInput').value;
+      if (!url) {
+        alert('Please enter a valid YouTube URL.');
+        return;
+      }
 
-        // Event Listeners for Buttons
-        document.getElementById('video-btn').addEventListener('click', () => handleDownload('video'));
-        document.getElementById('audio-btn').addEventListener('click', () => handleDownload('audio'));
+      const videoApi = `https://api.giftedtech.my.id/api/download/ytmp4?apikey=gifted&url=${encodeURIComponent(url)}`;
+      fetch(videoApi)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.result && data.result.download_url) {
+            window.open(data.result.download_url, '_blank');
+          } else {
+            alert('Failed to fetch the video download link. Try again later.');
+          }
+        })
+        .catch(() => alert('An error occurred while processing your request.'));
+    }
 
-        // Function to Handle Download
-        async function handleDownload(format) {
-            const url = document.getElementById('url').value;
-            const resultDiv = document.getElementById('result');
+    function downloadAudio() {
+      const url = document.getElementById('urlInput').value;
+      if (!url) {
+        alert('Please enter a valid YouTube URL.');
+        return;
+      }
 
-            // Validate Input
-            if (!url.trim()) {
-                resultDiv.innerHTML = "<p style='color: red;'>Please enter a valid YouTube URL.</p>";
-                return;
-            }
-
-            // Show Loading Message
-            resultDiv.innerHTML = "<p>Loading... Please wait.</p>";
-
-            try {
-                // Fetch API Response
-                const response = await fetch(`${apiUrl}?apikey=${apiKey}&url=${url}`);
-                const data = await response.json();
-
-                if (data.status === true) {
-                    // Display the Download Link
-                    const downloadUrl = format === "audio" ? data.result.audio : data.result.video;
-                    resultDiv.innerHTML = `
-                        <p>Click the link below to download:</p>
-                        <a href="${downloadUrl}" target="_blank">Download ${format.toUpperCase()}</a>
-                    `;
-                } else {
-                    resultDiv.innerHTML = `<p style='color: red;'>Error: ${data.message}</p>`;
-                }
-            } catch (error) {
-                console.error(error);
-                resultDiv.innerHTML = `<p style='color: red;'>Failed to fetch the download link. Try again later.</p>`;
-            }
-        }
-    </script>
+      const audioApi = `https://api.giftedtech.my.id/api/download/ytmp3?apikey=gifted&url=${encodeURIComponent(url)}`;
+      fetch(audioApi)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.result && data.result.download_url) {
+            window.open(data.result.download_url, '_blank');
+          } else {
+            alert('Failed to fetch the audio download link. Try again later.');
+          }
+        })
+        .catch(() => alert('An error occurred while processing your request.'));
+    }
+  </script>
 </body>
 </html>
