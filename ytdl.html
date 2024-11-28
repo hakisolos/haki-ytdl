@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Background Styling */
+        body {
+            height: 100vh;
+            background: url('https://files.catbox.moe/gl68he.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
+        }
+
+        /* Centered Content Div */
+        #app {
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 15px;
+            padding: 40px 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+            text-align: center;
+        }
+
+        /* Heading */
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #00ffcc;
+        }
+
+        /* Input Field */
+        input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 10px;
+            outline: none;
+            font-size: 16px;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .btn.video {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .btn.audio {
+            background-color: #28a745;
+            color: #fff;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+
+        /* Result Section */
+        .result {
+            margin-top: 20px;
+        }
+
+        a {
+            color: #00ffcc;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>YouTube Downloader</h1>
+        <input type="text" id="url" placeholder="Enter YouTube URL" required>
+        <button class="btn video" id="video-btn">Download Video</button>
+        <button class="btn audio" id="audio-btn">Download Audio</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const apiKey = "gifted";
+        const apiUrl = "https://api.giftedtech.my.id/api/download/ytdl";
+
+        // Event Listeners for Buttons
+        document.getElementById('video-btn').addEventListener('click', () => handleDownload('video'));
+        document.getElementById('audio-btn').addEventListener('click', () => handleDownload('audio'));
+
+        // Function to Handle Download
+        async function handleDownload(format) {
+            const url = document.getElementById('url').value;
+            const resultDiv = document.getElementById('result');
+
+            // Validate Input
+            if (!url.trim()) {
+                resultDiv.innerHTML = "<p style='color: red;'>Please enter a valid YouTube URL.</p>";
+                return;
+            }
+
+            // Show Loading Message
+            resultDiv.innerHTML = "<p>Loading... Please wait.</p>";
+
+            try {
+                // Fetch API Response
+                const response = await fetch(`${apiUrl}?apikey=${apiKey}&url=${url}`);
+                const data = await response.json();
+
+                if (data.status === true) {
+                    // Display the Download Link
+                    const downloadUrl = format === "audio" ? data.result.audio : data.result.video;
+                    resultDiv.innerHTML = `
+                        <p>Click the link below to download:</p>
+                        <a href="${downloadUrl}" target="_blank">Download ${format.toUpperCase()}</a>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p style='color: red;'>Error: ${data.message}</p>`;
+                }
+            } catch (error) {
+                console.error(error);
+                resultDiv.innerHTML = `<p style='color: red;'>Failed to fetch the download link. Try again later.</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
